@@ -32,8 +32,8 @@ Sb = np.zeros((size*size,size*size), dtype=np.float64)
 lamda = np.zeros(size*size, dtype=np.float64)
 eig_vec = np.zeros((size*size,size*size), dtype=np.float64)
 
-# fig以下の画像を削除（MS-Windows）
-os.system("del /Q fig\*")
+# fig以下の画像を削除（Linux）
+os.system("rm -rf fig/*")
 
 # 学習データの読み込み
 dir = [ "Male" , "Female" ]
