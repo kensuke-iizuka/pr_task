@@ -37,8 +37,8 @@ D = int( input( " D? > " ) )
 # 係数ベクトル
 c = np.zeros((train_num*2,size*size), dtype=np.float64)
 
-# fig以下の画像を削除（MS-Windows）
-os.system("del /Q fig\*")
+# fig以下の画像を削除（Linux）
+os.system("rm -rf fig/*")
 
 # データの読み込み
 dir = [ "Male" , "Female" ]
