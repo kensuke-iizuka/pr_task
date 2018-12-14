@@ -7,9 +7,8 @@ from PIL import Image, ImageDraw
 from collections import Counter
 
 # Input from user
-args = sys.argv
-K = int(args[1])
-N = int(args[2])
+K = int( input( " Please input K > " ) )
+N = int( input( " Please input N > " ) )
 train_num = K
 train_img = np.zeros((10,K,28,28), dtype=np.float32)
 
