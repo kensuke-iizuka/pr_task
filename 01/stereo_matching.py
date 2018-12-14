@@ -37,24 +37,28 @@ result = np.ones((left_height, left_width))
 search_size = 21 // 2
 # テンプレートの大きさ
 template_size = 21 // 2 
-for y in range(template_size-1,left_height-template_size,1):
-#   print(y)
-  for x in range(template_size-1,left_width-template_size,1):
+for y in range(template_size,left_height-template_size,1):
+  for x in range(template_size,left_width-template_size,1):
     ans_x = 0
     ans_y = 0
     min_val = float( 'inf' )
     # 左画像の座標(x,y）を中心としたテンプレートに類似した領域を
     # 右画像から検索し，その座標（ans_x,ans_y）を求めなさい
-    left_reg = left[y-template_size+1:y+template_size, x-template_size+1:x+template_size].flatten()
-    for gy in range(0, search_size*2, 1):
-      for gx in range(0, search_size*2, 1):
-        right_reg = right[y+gy-search_size-1:y+gy+search_size, x+gx-search_size-1:x+gx+search_size].flatten()
+    left_reg = left[y-template_size:y+template_size+1, x-template_size:x+template_size+1].flatten()
+    for gy in range(0, search_size*2+1, 1):
+      if y+gy+search_size+1 == right_height:
+        break
+      for gx in range(0, search_size*2+1, 1):
+        if x+gx+search_size+1 == right_width:
+          break
+        right_reg = right[y+gy-search_size:y+gy+search_size+1, x+gx-search_size:x+gx+search_size+1].flatten()
         # pdb.set_trace()
         # if x == 611:
         if left_reg.shape != right_reg.shape:
-          print(gy,gx,y,x)
+          print("gy: ", gy, "gx: ", gx, "y: ", y, "x: ", x)
           print("left:",left_reg.shape)
           print("right",right_reg.shape)
+          sys.exit()
         # sum = np.dot((left_reg-right_reg).T, (left_reg-right_reg))
         sum = 0
         if min_val > sum:
