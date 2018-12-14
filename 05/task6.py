@@ -104,7 +104,7 @@ print(female_c_ave)
 # 混合行列
 result = np.zeros((class_num,class_num), dtype=np.int32)
 for i in range(class_num):
-  for j in range(train_num,101):
+  for j in range(train_num+1,101):
     # テストデータの読み込み
     pat_file = "face/" + dir[i] + "/" + str(j) + ".png"
     work_img = Image.open(pat_file).convert('L')
