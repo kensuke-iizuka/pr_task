@@ -48,27 +48,26 @@ for y in range(template_size,left_height-template_size,1):
     for gy in range(0, search_size*2+1, 1):
       if y+gy+search_size+1 == right_height:
         break
-      for gx in range(0, search_size*2+1, 1):
-        if x+gx+search_size+1 == right_width:
-          break
-        right_reg = right[y+gy-search_size:y+gy+search_size+1, x+gx-search_size:x+gx+search_size+1].flatten()
-        # pdb.set_trace()
-        # if x == 611:
-        if left_reg.shape != right_reg.shape:
-          print("gy: ", gy, "gx: ", gx, "y: ", y, "x: ", x)
-          print("left:",left_reg.shape)
-          print("right",right_reg.shape)
-          sys.exit()
-        # sum = np.dot((left_reg-right_reg).T, (left_reg-right_reg))
-        sum = 0
-        if min_val > sum:
-          min_val = sum
-          ans_x = x
-          ans_y = y
+      right_reg = right[y+gy-search_size:y+gy+search_size+1, x-search_size:x+search_size+1].flatten()
+      # pdb.set_trace()
+      if left_reg.shape != right_reg.shape:
+        print("gy: ", gy,  "y: ", y, "x: ", x)
+        print("left:",left_reg.shape)
+        print("right",right_reg.shape)
+        sys.exit()
+      sum = np.dot((left_reg-right_reg).T, (left_reg-right_reg))
+      # sum = 0
+      if min_val > sum:
+        min_val = sum
+        ans_x = x
+        ans_y = y
             
     result[y,x]=(x-ans_x)*(x-ans_x)+(y-ans_y)*(y-ans_y)
 
 min = np.min( result )
 max = np.max( result )
+print("max: ", max, "min: ", min)
 result = (result-min)/(max-min) * 255
 result_img = Image.fromarray(np.uint8(result))
+result_img.save("result.jpg")
+
