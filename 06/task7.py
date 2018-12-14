@@ -50,8 +50,12 @@ def Train():
       for k in range(class_num):
         # 出力値の計算
         out = np.dot( weight[k], train_vec[i][j] )
-        # 重みの修正 ここはデルタルールでもパーセプトロンでも実は変更しなくていい。。。
-        weight[k] -= alpha * ( out - teach[k] ) * train_vec[i][j]
+        # 重みの修正
+        if out > 0 and teach[k] == 0:
+          weight[k] -= alpha  * train_vec[i][j]
+        elif out < 0 and teach[k] == 1:
+          weight[k] += alpha * train_vec[i][j]
+
         # 誤差二乗和の計算
         error += ( out - teach[k] ) * ( out - teach[k] )
 
