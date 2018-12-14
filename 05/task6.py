@@ -43,11 +43,11 @@ os.system("rm -rf fig/*")
 # データの読み込み
 dir = [ "Male" , "Female" ]
 for i in range(class_num):
-    for j in range(1,train_num+1):
-        train_file = "face/" + dir[i] + "/" + str(j) + ".png"
-        work_img = Image.open(train_file).convert('L')
-        resize_img = work_img.resize((size, size))
-        train_vec[i*train_num+j-1] = np.asarray(resize_img).astype(np.float64).flatten()
+  for j in range(1,train_num+1):
+    train_file = "face/" + dir[i] + "/" + str(j) + ".png"
+    work_img = Image.open(train_file).convert('L')
+    resize_img = work_img.resize((size, size))
+    train_vec[i*train_num+j-1] = np.asarray(resize_img).astype(np.float64).flatten()
         
 # 平均ベクトル
 ave_vec = np.mean( train_vec , axis=0 )
@@ -65,12 +65,12 @@ lamda , eig_vec = np.linalg.eig( Sw )
 
 # 固有ベクトルの表示
 for j in range(10):
-    a = np.reshape( eig_vec[:,j].real , (size,size) )
-    plt.imshow(a , interpolation='nearest')
-    plt.colorbar()
-    file = "fig/eigen-" + str(j) + ".png"
-    plt.savefig(file)
-    plt.close()
+  a = np.reshape( eig_vec[:,j].real , (size,size) )
+  plt.imshow(a , interpolation='nearest')
+  plt.colorbar()
+  file = "fig/eigen-" + str(j) + ".png"
+  plt.savefig(file)
+  plt.close()
         
 # 検算
 print( np.dot( eig_vec[:,0] , eig_vec[:,1]) )
@@ -87,19 +87,13 @@ for i in range(class_num):
   
     # 係数ベクトル
     for k in range(size*size):
-        a = np.resize( ave_vec, (size*size,1) )
-        train_c[i*train_num+j-1][k] = np.dot( eig_vec[:,k].real.T , ( src_vec - a ))
+      a = np.resize( ave_vec, (size*size,1) )
+      train_c[i*train_num+j-1][k] = np.dot( eig_vec[:,k].real.T , ( src_vec - a ))
 
 # Calculate average coefficient vectors of male and female
 new_train_c = np.split(train_c[:, 0:D], 2)
 male_c_ave = np.mean(new_train_c[0], axis=0)
 female_c_ave = np.mean(new_train_c[1], axis=0)
-print(new_train_c)
-print(male_c_ave)
-print(female_c_ave)
-
-
-# Calculate coefficient vector for test data
 
 # 混合行列
 result = np.zeros((class_num,class_num), dtype=np.int32)
@@ -114,8 +108,8 @@ for i in range(class_num):
     # 係数ベクトル
     test_c = np.zeros((size*size), dtype=np.float64)
     for k in range(size*size):
-        a = np.resize( ave_vec, (size*size,1) )
-        test_c[k] = np.dot( eig_vec[:,k].real.T , ( src_vec - a ))
+      a = np.resize( ave_vec, (size*size,1) )
+      test_c[k] = np.dot( eig_vec[:,k].real.T , ( src_vec - a ))
 
     # Nearest Neighbor
     male_dist = np.dot(test_c[0:D].T, male_c_ave)
