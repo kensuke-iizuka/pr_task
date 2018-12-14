@@ -92,11 +92,50 @@ for i in range(class_num):
 
 # Calculate average coefficient vectors of male and female
 new_train_c = np.split(train_c[:, 0:D], 2)
+male_c = new_train_c[0]
+female_c = new_train_c[1]
+
+# 混合行列
+result = np.zeros((class_num,class_num), dtype=np.int32)
+for i in range(class_num):
+  for j in range(train_num+1,101):
+    # テストデータの読み込み
+    min_val = float('inf')
+    ans = 0
+    pat_file = "face/" + dir[i] + "/" + str(j) + ".png"
+    work_img = Image.open(pat_file).convert('L')
+    resize_img = work_img.resize((size, size))
+    src_vec = np.reshape( np.asarray(resize_img).astype(np.float64) , (size*size,1) )
+  
+    # 係数ベクトル
+    test_c = np.zeros((size*size), dtype=np.float64)
+    for k in range(class_num): 
+      for l in range(train_num):
+        for m in range(size*size):
+          a = np.resize( ave_vec, (size*size,1) )
+          test_c[m] = np.dot( eig_vec[:,m].real.T , ( src_vec - a ))
+          # Nearest Neighbor
+          dist = np.dot(test_c[0:D].T, new_train_c[k][l])
+          if min_val > dist:
+            min_val = dist 
+            ans = k
+
+    result[i][ans] +=1
+    print(i,j,"->", ans)
+
+# 混合行列の出力
+print( "\n [混合行列]" )
+print( result )
+print( "\n 正解数 ->" ,  np.trace(result) )
+
+
+
+# Using average vector of coefficient vectors of male and female
 male_c_ave = np.mean(new_train_c[0], axis=0)
 female_c_ave = np.mean(new_train_c[1], axis=0)
 
 # 混合行列
-result = np.zeros((class_num,class_num), dtype=np.int32)
+mean_result = np.zeros((class_num,class_num), dtype=np.int32)
 for i in range(class_num):
   for j in range(train_num+1,101):
     # テストデータの読み込み
@@ -119,7 +158,7 @@ for i in range(class_num):
     else:
       ans = 0
 
-    result[i][ans] +=1
+    mean_result[i][ans] +=1
     print(i,j,"->", ans)
 
 # 混合行列の出力
