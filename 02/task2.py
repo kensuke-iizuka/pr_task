@@ -14,9 +14,7 @@ train_num = 100
 train_img = np.zeros((10,train_num,28,28), dtype=np.float32)
 
 # ユーザーの入力
-args = sys.argv
-K = int(args[1])
-print(K)
+K = int( input( " Please input K > " ) )
 
 # プロトタイプの読み込み
 for i in range(10):
@@ -49,10 +47,11 @@ for i in range(10):
             break
           else:
             continue
+  print(ans)
   c = Counter(ans)
   mode = c.most_common(1)
-  count = np.array([v for key,v in sorted(c.items())])
-  print(count)
+  # count = np.array([v for key,v in sorted(c.items())])
+  # print(count)
   final_ans = int(mode[0][0])
   print(final_ans)
   #  結果の出力
