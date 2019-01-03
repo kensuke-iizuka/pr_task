@@ -19,7 +19,7 @@ K = int( input( " Please input K > " ) )
 # プロトタイプの読み込み
 for i in range(10):
   for j in range(1,train_num+1):
-    train_file = "mnist/train/" + str(i) + "/" + str(i) + "_" + str(j) + ".jpg"
+    train_file = "../data/mnist/train/" + str(i) + "/" + str(i) + "_" + str(j) + ".jpg"
     train_img[i][j-1] = np.asarray(Image.open(train_file).convert('L')).astype(np.float32)
 
 # 混合行列
@@ -27,7 +27,7 @@ result = np.zeros((10,10), dtype=np.int32)
 for i in range(10):
   for j in range(1,101):
     # 未知パターンの読み込み
-    pat_file = "mnist/test/" + str(i) + "/" + str(i) + "_" + str(j) + ".jpg"
+    pat_file = "../data/mnist/test/" + str(i) + "/" + str(i) + "_" + str(j) + ".jpg"
     pat_img = np.asarray(Image.open(pat_file).convert('L')).astype(np.float32)
 
     min_val = np.full(K, np.inf)

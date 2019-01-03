@@ -18,7 +18,7 @@ for i in range(10):
     temp_file = np.zeros((28,28), dtype=np.float32)
     for k in range(N):
       num = random.randint(1,100)
-      train_file = "mnist/train/" + str(i) + "/" + str(i) + "_" + str(num) + ".jpg"
+      train_file = "../data/mnist/train/" + str(i) + "/" + str(i) + "_" + str(num) + ".jpg"
       temp_file += np.asarray(Image.open(train_file).convert('L')).astype(np.float32)
     # Calculate arithmetic mean of each image
     train_img[i][j] = temp_file / N 
@@ -28,7 +28,7 @@ result = np.zeros((10,10), dtype=np.int32)
 for i in range(10):
   for j in range(1,101):
     # 未知パターンの読み込み
-    pat_file = "mnist/train/" + str(i) + "/" + str(i) + "_" + str(j) + ".jpg"
+    pat_file = "../data/mnist/train/" + str(i) + "/" + str(i) + "_" + str(j) + ".jpg"
     pat_img = np.asarray(Image.open(pat_file).convert('L')).astype(np.float32)
 
     # Nearest Neibhor 

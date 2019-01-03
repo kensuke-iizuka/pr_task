@@ -44,7 +44,7 @@ os.system("rm -rf fig/*")
 dir = [ "Male" , "Female" ]
 for i in range(class_num):
     for j in range(1,train_num+1):
-        train_file = "face/" + dir[i] + "/" + str(j) + ".png"
+        train_file = "../data/face/" + dir[i] + "/" + str(j) + ".png"
         work_img = Image.open(train_file).convert('L')
         resize_img = work_img.resize((size, size))
         train_vec[i*train_num+j-1] = np.asarray(resize_img).astype(np.float64).flatten()

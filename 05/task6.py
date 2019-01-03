@@ -44,7 +44,7 @@ os.system("rm -rf fig/*")
 dir = [ "Male" , "Female" ]
 for i in range(class_num):
   for j in range(1,train_num+1):
-    train_file = "face/" + dir[i] + "/" + str(j) + ".png"
+    train_file = "../data/face/" + dir[i] + "/" + str(j) + ".png"
     work_img = Image.open(train_file).convert('L')
     resize_img = work_img.resize((size, size))
     train_vec[i*train_num+j-1] = np.asarray(resize_img).astype(np.float64).flatten()
@@ -80,7 +80,7 @@ print( np.dot( eig_vec[:,1] , eig_vec[:,1] ) )
 for i in range(class_num):
   for j in range(1,train_num+1):
     # Read train vector
-    pat_file = "face/" + dir[i] + "/" + str(j) + ".png"
+    pat_file = "../data/face/" + dir[i] + "/" + str(j) + ".png"
     work_img = Image.open(pat_file).convert('L')
     resize_img = work_img.resize((size, size))
     src_vec = np.reshape( np.asarray(resize_img).astype(np.float64) , (size*size,1) )
@@ -102,7 +102,7 @@ for i in range(class_num):
     # テストデータの読み込み
     min_val = float('inf')
     ans = 0
-    pat_file = "face/" + dir[i] + "/" + str(j) + ".png"
+    pat_file = "../data/face/" + dir[i] + "/" + str(j) + ".png"
     work_img = Image.open(pat_file).convert('L')
     resize_img = work_img.resize((size, size))
     src_vec = np.reshape( np.asarray(resize_img).astype(np.float64) , (size*size,1) )
@@ -139,7 +139,7 @@ mean_result = np.zeros((class_num,class_num), dtype=np.int32)
 for i in range(class_num):
   for j in range(train_num+1,101):
     # テストデータの読み込み
-    pat_file = "face/" + dir[i] + "/" + str(j) + ".png"
+    pat_file = "../data/face/" + dir[i] + "/" + str(j) + ".png"
     work_img = Image.open(pat_file).convert('L')
     resize_img = work_img.resize((size, size))
     src_vec = np.reshape( np.asarray(resize_img).astype(np.float64) , (size*size,1) )
