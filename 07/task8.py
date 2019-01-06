@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# adaline（MNIST）
+# original perceptron（MNIST）
 
 import sys
 import os
@@ -25,10 +25,7 @@ data_vec = np.zeros((class_num,train_num,feature), dtype=np.float64)
 alpha = 0.1
 
 def Step(x):
-  if x > 0:
-    return 1
-  else:
-    return 0
+  return np.where(x > 0, 1, 0)
 
 # 出力層
 class Outunit:
@@ -43,11 +40,10 @@ class Outunit:
   def Propagation(self, x): # x 入力値
     self.x = x
     self.u1 = np.dot(self.x, self.v)
-    self.u1 = Step(self.u1)
     # 内部状態
-    self.u2 = np.dot(self.u1, self.w) + self.b
+    self.u = np.dot(self.u1, self.w) + self.b
     # 出力値（活性化関数なし）
-    self.out = self.u2
+    self.out = Step(self.u)
 
   def Error(self, t): # t 教師信号
     # 誤差
@@ -69,7 +65,7 @@ class Outunit:
     for i in range(class_num):
       a = np.reshape( self.w[:,i] , (size,size) )
       plt.imshow(a , interpolation='nearest')
-      file = "dat/weight-" + str(i) + ".png"
+      file = "dat/perceptron_weight-" + str(i) + ".png"
       plt.savefig(file)
       plt.close()
       
@@ -96,7 +92,7 @@ def Read_data( flag ):
 # 予測
 def Predict():
   # 重みのロード
-  outunit.Load( "dat/adaline.npz" )
+  outunit.Load( "dat/original_perceptron.npz" )
   # 混合行列
   result = np.zeros((class_num,class_num), dtype=np.int32)
   
@@ -122,7 +118,7 @@ def Predict():
 def Train():
 
   # エポック数
-  epoch = 100
+  epoch = 1000
 
   for e in range( epoch ):
     error = 0.0
@@ -149,7 +145,7 @@ def Train():
 
 if __name__ == '__main__':
   # 出力層のコンストラクター
-  outunit = Outunit( feature , feature )
+  outunit = Outunit( feature , class_num )
   argvs = sys.argv
   # 引数がtの場合
   if argvs[1] == "t":
