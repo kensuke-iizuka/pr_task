@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 # クラス数
 class_num = 10
 # 画像の大きさ
-size = 16 
+size = 16
 feature = size * size
 # 学習データ数
 train_num = 200 
 # データ
 data_vec = np.zeros((class_num,train_num,feature), dtype=np.float64)
 # 学習係数
-alpha = 0.1
+alpha = 0.25
 
 # シグモイド関数
 def Sigmoid( x ):
@@ -144,7 +144,7 @@ def Read_data( flag ):
 # 学習
 def Train():
   # エポック数
-  epoch = 1000
+  epoch = 10000
 
   for e in range( epoch ):
     error = 0.0
