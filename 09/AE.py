@@ -272,7 +272,7 @@ if __name__ == '__main__':
     # 引数がpの場合
     elif argvs[1] == "p":
 
-        os.system( "del fig\*.png" )
+        os.system( "rm -f fig\*.png" )
         
         # テストデータの読み込み
         flag = 1
