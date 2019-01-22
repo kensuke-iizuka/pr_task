@@ -52,10 +52,11 @@ class Outunit:
     self.u = np.dot(self.x, self.w) + self.b
     # 出力値（恒等関数）
     self.out = self.u
+    self.out = Sigmoid(self.u)
 
   def Error(self, t):
     # 誤差
-    f_ = 1
+    f_ = Sigmoid_(self.u) 
     delta = ( self.out - t ) * f_
     # 重み，閾値の修正値
     self.grad_w = np.dot(self.x.T, delta)
@@ -91,11 +92,12 @@ class Hunit:
     # 内部状態
     self.u = np.dot(self.x, self.w) + self.b
     # 出力値（ソフトマックス関数）
-    self.out = Softmax( self.u )
+    # self.out = Softmax( self.u )
+    self.out = Sigmoid( self.u )
 
   def Error(self, p_error):
     # 誤差
-    f_ = 1
+    f_ = Sigmoid_( self.u )
     delta = p_error * f_
     # 重み，閾値の修正値
     self.grad_w = np.dot(self.x.T, delta)
@@ -134,9 +136,9 @@ def Read_data( flag ):
       data_vec[i][j][1] = work_array[:,:,1].flatten() # Green image
       data_vec[i][j][2] = work_array[:,:,2].flatten() # Blue image
       # 入力値の合計を1とする
-      data_vec[i][j][0] = data_vec[i][j][0] / np.sum( data_vec[i][j][0] )
-      data_vec[i][j][1] = data_vec[i][j][1] / np.sum( data_vec[i][j][1] )
-      data_vec[i][j][2] = data_vec[i][j][2] / np.sum( data_vec[i][j][2] )
+      data_vec[i][j][0] = data_vec[i][j][0] / 255 
+      data_vec[i][j][1] = data_vec[i][j][1] / 255 
+      data_vec[i][j][2] = data_vec[i][j][2] / 255 
 
 # Visualize weights
 def Visualize_weights(hunit, img_name):
@@ -144,7 +146,7 @@ def Visualize_weights(hunit, img_name):
   plt.figure(figsize=(g_size,g_size))
   
   count = 1
-  for i in range(hunit_num):
+  for i in range(100):
     plt.subplot(g_size,g_size,count)
     plt.imshow(np.reshape(hunit.w[:,i],(size,size)),cmap='gray')
     plt.xticks(color="None")
@@ -249,9 +251,6 @@ def Predict():
       img_vec = (img_vec / img_vec.max() * 255).astype(np.uint8)
       output_img = Image.fromarray(np.uint8(img_vec))
 
-      # data_vec[i][j][0] = data_vec[i][j][0] * np.sum( data_vec[i][j][0] )
-      # data_vec[i][j][1] = data_vec[i][j][1] * np.sum( data_vec[i][j][1] )
-      # data_vec[i][j][2] = data_vec[i][j][2] * np.sum( data_vec[i][j][2] )
 
       orig_img_vec = np.resize(data_vec[i][j], (3, size, size))
       orig_img_vec = np.transpose(orig_img_vec, (1, 2, 0))
@@ -283,7 +282,7 @@ def Predict():
 
 if __name__ == '__main__':
 
-  hunit_num = 32
+  hunit_num = 100 
   # R channel
   r_hunit = Hunit( feature , hunit_num )
   r_outunit = Outunit( hunit_num , feature )
