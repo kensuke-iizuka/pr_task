@@ -265,7 +265,9 @@ def Train():
 
 # 予測
 def Predict():
-
+ 
+    correct_count = 0
+    word_count = 0
     # 重みのロード
     outunit.Load( "dat/Elman-out.npz" )
     hunit.Load( "dat/Elman-hunit.npz" )
@@ -307,6 +309,11 @@ def Predict():
 
         # 予測結果の出力
         print( get_key_from_value(word, sentence[s] ) , "->" , get_key_from_value(word, sentence[s+1] ) , "[" , get_key_from_value(word, predict) + " ]" )
+        if get_key_from_value(word, sentence[s+1]) == get_key_from_value(word, predict):
+          correct_count = correct_count + 1
+        word_count = word_count + 1
+    print("Accuracy: ", correct_count, "/", word_count)
+
 
 if __name__ == '__main__':
 

@@ -237,18 +237,20 @@ def Train():
 # 予測
 def Predict():
   # 重みのロード
+  correct_count = 0
+  word_count = 0
   outunit.Load("dat/task11-out.npz")
   hunit.Load("dat/task11-hunit.npz")
   embed.Load("dat/task11-embed.npz")
 
   # 文脈層の初期化
-  outunit_in = np.zeros( (1,hunit_num) )
+  outunit_in = np.zeros((1,hunit_num))
   
   for s in range(len(sentence)):
     if sentence[s] == eos_id:
       print( "------" )
       # 文脈層の初期化
-      outunit_in = np.zeros( (1,hunit_num) )
+      outunit_in = np.zeros((1,hunit_num))
       continue
     # 入力層への入力
     input_data = np.zeros( (1,feature) )
@@ -264,7 +266,11 @@ def Predict():
     predict = np.argmax(outunit.out[0])
     # 予測結果の出力
     print(get_key_from_value(word, sentence[s]) , "->" , get_key_from_value(word, sentence[s+1]) , "[" , get_key_from_value(word, predict) + " ]")
-
+    if get_key_from_value(word, sentence[s+1]) == get_key_from_value(word, predict):
+      correct_count = correct_count + 1
+    word_count = word_count + 1
+  print("Accuracy: ", correct_count, "/", word_count)
+    
 if __name__ == '__main__':
 
   # コーパスの読み込み
