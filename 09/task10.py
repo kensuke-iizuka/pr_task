@@ -9,7 +9,7 @@ import pdb
 # クラス数
 class_num = 10
 # 画像の大きさ
-size = 32
+size = 16 
 feature = size * size
 # 学習データ数
 train_num = 200 
@@ -127,18 +127,15 @@ def Read_data( flag ):
   class_list = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
   for i in range(class_num):
     for j in range(train_num):
-      # グレースケール画像で読み込み→大きさの変更→numpyに変換，ベクトル化
       train_file = "../data/cifar-10/" + dir[ flag ] +  "/" + class_list[i] + "/" + str(j) + ".png"
       work_img = Image.open(train_file).convert('RGB')
       resize_img = work_img.resize((size, size))
       work_array = np.resize(np.asarray(resize_img).astype(np.float64), (size, size, 3))
+      # Normarize
+      work_array = work_array / 255 
       data_vec[i][j][0] = work_array[:,:,0].flatten() # Red image
       data_vec[i][j][1] = work_array[:,:,1].flatten() # Green image
       data_vec[i][j][2] = work_array[:,:,2].flatten() # Blue image
-      # 入力値の合計を1とする
-      data_vec[i][j][0] = data_vec[i][j][0] / 255 
-      data_vec[i][j][1] = data_vec[i][j][1] / 255 
-      data_vec[i][j][2] = data_vec[i][j][2] / 255 
 
 # Visualize weights
 def Visualize_weights(hunit, img_name):
@@ -242,15 +239,19 @@ def Predict():
     #   teach = data_vec[i][j].reshape(1,feature)
       # Convert numpy to image(RGB)
       output = np.zeros((3, feature), dtype=np.float64)
-      output[0] = (r_outunit.out / r_outunit.out.max() * 255).astype(np.uint8)
-      output[1] = (g_outunit.out / g_outunit.out.max() * 255).astype(np.uint8)
-      output[2] = (b_outunit.out / b_outunit.out.max() * 255).astype(np.uint8)
+      # output[0] = (r_outunit.out / r_outunit.out.max() * 255).astype(np.uint8)
+      # output[1] = (g_outunit.out / g_outunit.out.max() * 255).astype(np.uint8)
+      # output[2] = (b_outunit.out / b_outunit.out.max() * 255).astype(np.uint8)
+      output[0] = (r_outunit.out * 255).astype(np.uint8)
+      output[1] = (g_outunit.out * 255).astype(np.uint8)
+      output[2] = (b_outunit.out * 255).astype(np.uint8)
 
       img_vec = np.resize(output, (3, size, size))
-      img_vec = np.transpose(img_vec, (1, 2, 0))
-      img_vec = (img_vec / img_vec.max() * 255).astype(np.uint8)
-      output_img = Image.fromarray(np.uint8(img_vec))
-
+      img_vec = np.transpose(img_vec, (1, 2, 0)).astype(np.uint8)
+      # img_vec = np.transpose(img_vec, (0, 1, 2)).astype(np.uint8)
+      # img_vec = (img_vec * 255).astype(np.uint8)
+      # pdb.set_trace()
+      output_img = Image.fromarray(img_vec)
 
       orig_img_vec = np.resize(data_vec[i][j], (3, size, size))
       orig_img_vec = np.transpose(orig_img_vec, (1, 2, 0))
