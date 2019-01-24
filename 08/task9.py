@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# 誤差逆伝播則（MNIST）
+# Back propagation (cifar-10)
 
 import sys
 import os
@@ -17,7 +17,7 @@ train_num = 200
 # データ
 data_vec = np.zeros((class_num,train_num,feature), dtype=np.float64)
 # 学習係数
-alpha = 0.25
+alpha = 0.1
 
 # シグモイド関数
 def Sigmoid( x ):
@@ -56,7 +56,7 @@ class Outunit:
 
   def Error(self, t):
     # 誤差
-    #f_ = self.out * ( 1 - self.out )
+    # f_ = self.out * ( 1 - self.out )
     f_ = Sigmoid_( self.u )
     # f_ = 1
     delta = ( self.out - t ) * f_
@@ -70,6 +70,8 @@ class Outunit:
     # 重み，閾値の修正
     self.w -= alpha * self.grad_w
     self.b -= alpha * self.grad_b
+    ada_grad2.updateParams(self.w, self.grad_w)
+    ada_grad3.updateParams(self.b, self.grad_b)
 
   def Save(self, filename):
     # 重み，閾値の保存
@@ -88,20 +90,24 @@ class Hunit:
     self.w = np.random.uniform(-0.5,0.5,(n,m))
     # 閾値
     self.b = np.random.uniform(-0.5,0.5,m)
+    self.h = {}
+    self.m = {}
+    self.v = {}
+    self.adam_iter = 0
       
   def Propagation(self, x):
     self.x = x
     # 内部状態
     self.u = np.dot(self.x, self.w) + self.b
     # 出力値（シグモイド関数）
-    #self.out = Sigmoid( self.u )
+    # self.out = Sigmoid( self.u )
     # 出力値（ReLU関数）
     self.out = ReLU( self.u )
 
   def Error(self, p_error):
     # 誤差
     #f_ = self.out * ( 1 - self.out )
-    #f_ = Sigmoid_( self.u )
+    # f_ = Sigmoid_( self.u )
     f_ = ReLU_( self.u )
     delta = p_error * f_
     # 重み，閾値の修正値
@@ -112,8 +118,31 @@ class Hunit:
 
   def Update_weight(self):
     # 重み，閾値の修正
-    self.w -= alpha * self.grad_w
-    self.b -= alpha * self.grad_b
+    # self.w -= alpha * self.grad_w
+    # self.b -= alpha * self.grad_b
+    ada_grad0.updateParams(self.w, self.grad_w)
+    ada_grad1.updateParams(self.b, self.grad_b)
+
+  def Update_weights_by_adagrad(self, param_array, grad_array):
+    if len(self.h) == 0:
+      for i, param in enumerate(param_array):
+        self.h[i] = np.zeros_like(param)
+
+    for i in range(len(param_array)):
+      self.h[i] += grad_array[i] * grad_array[i]
+      params_array[i] -= alpha * grad_array[i] / (np.sqrt(self.h[i]) + 1e-7)
+
+  def Update_weights_by_adam(self, param_array, grad_array):
+    adam_alpha = 0.9
+    adam_beta = 0.999
+    if len(self.m) == 0:
+      for i, param in enumerate(param_array):
+        self.m[i] = np.zeros_like(param)
+
+    for i in range(len(param_array)):
+      self.m[i] += (1 - adam_alpha) * (grad_array[i] - self.m[i])
+      self.v[i] += (1 - adam_beta) * (grad_array[i] * grad_array[i] - self.v[i])
+      params_array[i] -= alpha * self.m[i] / (np.sqrt(self.v[i] + 1e-7)
 
   def Save(self, filename):
     # 重み，閾値の保存
@@ -125,16 +154,29 @@ class Hunit:
     self.w = work['w']
     self.b = work['b']
 
+  # class AdaGrad:
+  #   def __init__(self):
+  #       self.h = {}
+  # 
+  #   def updateParams(self, params_array, grads_array):
+  #     if len(self.h) == 0:
+  #       for i, params in enumerate(params_array):
+  #         self.h[i] = np.zeros_like(params)
+  # 
+  #     for i in range(len(params_array)):
+  #       self.h[i] += grads_array[i]**2
+  #       sqrt_h = np.sqrt(self.h[i]) + 0.00000001
+  #       params_array[i] -= alpha * grads_array[i] / sqrt_h
 
 # データの読み込み
 def Read_data( flag ):
 
   dir = [ "train" , "test" ]
-  classification = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+  class_list = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
   for i in range(class_num):
     for j in range(train_num):
-      # グレースケール画像で読み込み→大きさの変更→numpyに変換，ベクトル化
-      train_file = "../data/cifar-10/" + dir[ flag ] + "/" + classification[i] + "/" + str(j) + ".png"
+      # グレースケール画像で読み込み→ 大きさの変更→ numpyに変換，ベクトル化
+      train_file = "../data/cifar-10/" + dir[ flag ] + "/" + class_list[i] + "/" + str(j) + ".png"
       work_img = Image.open(train_file).convert('L')
       resize_img = work_img.resize((size, size))
       data_vec[i][j-1] = np.asarray(resize_img).astype(np.float64).flatten()
@@ -144,7 +186,7 @@ def Read_data( flag ):
 # 学習
 def Train():
   # エポック数
-  epoch = 10000
+  epoch = 1000
 
   for e in range( epoch ):
     error = 0.0
@@ -166,6 +208,8 @@ def Train():
         # 重みの修正
         outunit.Update_weight()
         hunit.Update_weight()
+        outunit.Update_weight_by_adagrad()
+        hunit.Update_weight_by_adagrad()
 
         error += np.dot( ( outunit.out - teach ) , ( outunit.out - teach ).T )
     print( e , "->" , error )
@@ -207,26 +251,29 @@ def Predict():
 if __name__ == '__main__':
 
   # 中間層の個数
-  hunit_num = 32
+  hunit_num = 256 
   # 中間層のコンストラクター
-  hunit = Hunit( feature , hunit_num )
+  hunit = Hunit(feature , hunit_num)
   # 出力層のコンストラクター
-  outunit = Outunit( hunit_num , class_num )
+  outunit = Outunit(hunit_num , class_num)
+
+  ada_grad0 = AdaGrad()
+  ada_grad1 = AdaGrad()
+  ada_grad2 = AdaGrad()
+  ada_grad3 = AdaGrad()
 
   argvs = sys.argv
 
-  # 引数がtの場合
   if argvs[1] == "t":
     # 学習データの読み込み
     flag = 0
     Read_data( flag )
     # 学習
     Train()
-
-  # 引数がpの場合
   elif argvs[1] == "p":
     # テストデータの読み込み
     flag = 1
     Read_data( flag )
     # テストデータの予測
     Predict()
+
