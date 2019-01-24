@@ -70,8 +70,6 @@ class Outunit:
     # 重み，閾値の修正
     self.w -= alpha * self.grad_w
     self.b -= alpha * self.grad_b
-    ada_grad2.updateParams(self.w, self.grad_w)
-    ada_grad3.updateParams(self.b, self.grad_b)
 
   def Save(self, filename):
     # 重み，閾値の保存
@@ -118,10 +116,8 @@ class Hunit:
 
   def Update_weight(self):
     # 重み，閾値の修正
-    # self.w -= alpha * self.grad_w
-    # self.b -= alpha * self.grad_b
-    ada_grad0.updateParams(self.w, self.grad_w)
-    ada_grad1.updateParams(self.b, self.grad_b)
+    self.w -= alpha * self.grad_w
+    self.b -= alpha * self.grad_b
 
   def Update_weights_by_adagrad(self, param_array, grad_array):
     if len(self.h) == 0:
@@ -142,7 +138,7 @@ class Hunit:
     for i in range(len(param_array)):
       self.m[i] += (1 - adam_alpha) * (grad_array[i] - self.m[i])
       self.v[i] += (1 - adam_beta) * (grad_array[i] * grad_array[i] - self.v[i])
-      params_array[i] -= alpha * self.m[i] / (np.sqrt(self.v[i] + 1e-7)
+      param_array[i] -= alpha * self.m[i] / (np.sqrt(self.v[i] + 1e-7)
 
   def Save(self, filename):
     # 重み，閾値の保存
@@ -208,8 +204,8 @@ def Train():
         # 重みの修正
         outunit.Update_weight()
         hunit.Update_weight()
-        outunit.Update_weight_by_adagrad()
-        hunit.Update_weight_by_adagrad()
+        # outunit.Update_weight_by_adagrad()
+        # hunit.Update_weight_by_adagrad()
 
         error += np.dot( ( outunit.out - teach ) , ( outunit.out - teach ).T )
     print( e , "->" , error )
@@ -256,11 +252,6 @@ if __name__ == '__main__':
   hunit = Hunit(feature , hunit_num)
   # 出力層のコンストラクター
   outunit = Outunit(hunit_num , class_num)
-
-  ada_grad0 = AdaGrad()
-  ada_grad1 = AdaGrad()
-  ada_grad2 = AdaGrad()
-  ada_grad3 = AdaGrad()
 
   argvs = sys.argv
 
