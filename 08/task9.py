@@ -17,7 +17,7 @@ train_num = 200
 # データ
 data_vec = np.zeros((class_num,train_num,feature), dtype=np.float64)
 # 学習係数
-alpha = 0.1
+alpha = 0.25
 
 # シグモイド関数
 def Sigmoid( x ):
@@ -52,13 +52,10 @@ class Outunit:
     # 内部状態
     self.u = np.dot(self.x, self.w) + self.b
     self.out = Sigmoid( self.u )
-    # self.out = Softmax( self.u )
 
   def Error(self, t):
     # 誤差
-    # f_ = self.out * ( 1 - self.out )
     f_ = Sigmoid_( self.u )
-    # f_ = 1
     delta = ( self.out - t ) * f_
     # 重み，閾値の修正値
     self.grad_w = np.dot(self.x.T, delta)
@@ -68,8 +65,8 @@ class Outunit:
 
   def Update_weight(self):
     # 重み，閾値の修正
-    self.w -= alpha * self.grad_w
-    self.b -= alpha * self.grad_b
+    outunit_w_optimizer.update(self.w, self.grad_w)
+    outunit_b_optimizer.update(self.b, self.grad_b)
 
   def Save(self, filename):
     # 重み，閾値の保存
@@ -88,24 +85,16 @@ class Hunit:
     self.w = np.random.uniform(-0.5,0.5,(n,m))
     # 閾値
     self.b = np.random.uniform(-0.5,0.5,m)
-    self.h = {}
-    self.m = {}
-    self.v = {}
-    self.adam_iter = 0
       
   def Propagation(self, x):
     self.x = x
     # 内部状態
     self.u = np.dot(self.x, self.w) + self.b
-    # 出力値（シグモイド関数）
-    # self.out = Sigmoid( self.u )
     # 出力値（ReLU関数）
     self.out = ReLU( self.u )
 
   def Error(self, p_error):
     # 誤差
-    #f_ = self.out * ( 1 - self.out )
-    # f_ = Sigmoid_( self.u )
     f_ = ReLU_( self.u )
     delta = p_error * f_
     # 重み，閾値の修正値
@@ -116,29 +105,9 @@ class Hunit:
 
   def Update_weight(self):
     # 重み，閾値の修正
-    self.w -= alpha * self.grad_w
-    self.b -= alpha * self.grad_b
+    hunit_w_optimizer.update(self.w, self.grad_w)
+    hunit_b_optimizer.update(self.b, self.grad_b)
 
-  def Update_weights_by_adagrad(self, param_array, grad_array):
-    if len(self.h) == 0:
-      for i, param in enumerate(param_array):
-        self.h[i] = np.zeros_like(param)
-
-    for i in range(len(param_array)):
-      self.h[i] += grad_array[i] * grad_array[i]
-      params_array[i] -= alpha * grad_array[i] / (np.sqrt(self.h[i]) + 1e-7)
-
-  def Update_weights_by_adam(self, param_array, grad_array):
-    adam_alpha = 0.9
-    adam_beta = 0.999
-    if len(self.m) == 0:
-      for i, param in enumerate(param_array):
-        self.m[i] = np.zeros_like(param)
-
-    for i in range(len(param_array)):
-      self.m[i] += (1 - adam_alpha) * (grad_array[i] - self.m[i])
-      self.v[i] += (1 - adam_beta) * (grad_array[i] * grad_array[i] - self.v[i])
-      param_array[i] -= alpha * self.m[i] / (np.sqrt(self.v[i] + 1e-7)
 
   def Save(self, filename):
     # 重み，閾値の保存
@@ -150,19 +119,17 @@ class Hunit:
     self.w = work['w']
     self.b = work['b']
 
-  # class AdaGrad:
-  #   def __init__(self):
-  #       self.h = {}
-  # 
-  #   def updateParams(self, params_array, grads_array):
-  #     if len(self.h) == 0:
-  #       for i, params in enumerate(params_array):
-  #         self.h[i] = np.zeros_like(params)
-  # 
-  #     for i in range(len(params_array)):
-  #       self.h[i] += grads_array[i]**2
-  #       sqrt_h = np.sqrt(self.h[i]) + 0.00000001
-  #       params_array[i] -= alpha * grads_array[i] / sqrt_h
+class Optimizer:
+  def __init__(self):
+    self.h = {}
+  def update(self, params, grads):
+    if len(self.h) == 0:
+      for i, param in enumerate(params):
+        self.h[i] = np.zeros_like(param)
+    for i in range(len(params)):
+      self.h[i] += grads[i] * grads[i]
+      params[i] -= alpha * grads[i] / (np.sqrt(self.h[i]) + 1e-7)
+
 
 # データの読み込み
 def Read_data( flag ):
@@ -182,7 +149,7 @@ def Read_data( flag ):
 # 学習
 def Train():
   # エポック数
-  epoch = 1000
+  epoch = 100
 
   for e in range( epoch ):
     error = 0.0
@@ -204,8 +171,6 @@ def Train():
         # 重みの修正
         outunit.Update_weight()
         hunit.Update_weight()
-        # outunit.Update_weight_by_adagrad()
-        # hunit.Update_weight_by_adagrad()
 
         error += np.dot( ( outunit.out - teach ) , ( outunit.out - teach ).T )
     print( e , "->" , error )
@@ -247,11 +212,16 @@ def Predict():
 if __name__ == '__main__':
 
   # 中間層の個数
-  hunit_num = 256 
+  hunit_num = 64
   # 中間層のコンストラクター
   hunit = Hunit(feature , hunit_num)
   # 出力層のコンストラクター
   outunit = Outunit(hunit_num , class_num)
+  
+  hunit_w_optimizer = Optimizer()
+  hunit_b_optimizer = Optimizer()
+  outunit_w_optimizer = Optimizer()
+  outunit_b_optimizer = Optimizer()
 
   argvs = sys.argv
 
