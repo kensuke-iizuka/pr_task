@@ -30,4 +30,5 @@ You can download MNIST and Cifar-10 datasets following link
 
 I recommend you to download these datasets into `data` directory, if you want to execute programs in this repository without rewriting dataset path.
 
-
+## Notice
+Stereo matching program in `01` directory doesn't works well...
